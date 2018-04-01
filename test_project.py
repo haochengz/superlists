@@ -1,11 +1,21 @@
 
 from selenium import webdriver
+import unittest
 
-firefox_options = webdriver.FirefoxOptions()
-firefox_options.set_headless()
-browser = webdriver.Firefox(firefox_options=firefox_options)
+class Functional_Test(unittest.TestCase):
 
-browser.get("http://localhost:8000")
-# browser.get("http://www.baidu.com")
+    def setUp(self):
+        firefox_options = webdriver.FirefoxOptions()
+        firefox_options.set_headless()
+        self.browser = webdriver.Firefox(options=firefox_options)
 
-assert 'Django' in browser.title
+    def test_open_index_page(self):
+        self.browser.get("http://localhost:8000")
+        self.assertIn("To-do", self.browser.title)
+
+    def tearDown(self):
+        self.browser.close()
+
+
+if __name__ == "__main__":
+    unittest.main(warnings='ignore')
