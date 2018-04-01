@@ -8,6 +8,7 @@ class Functional_Test(unittest.TestCase):
         firefox_options = webdriver.FirefoxOptions()
         firefox_options.set_headless()
         self.browser = webdriver.Firefox(options=firefox_options)
+        self.browser.implicitly_wait(3)
 
     def test_open_index_page(self):
         self.browser.get("http://localhost:8000")
