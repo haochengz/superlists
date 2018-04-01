@@ -1,0 +1,8 @@
+1522570483763	geckodriver	INFO	geckodriver 0.20.0
+1522570483779	geckodriver	INFO	Listening on 127.0.0.1:53907
+1522570483830	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-headless" "-profile" "/tmp/rust_mozprofile.UaiScVSLjFwY"
+*** You are running in headless mode.
+1522570487130	Marionette	INFO	Enabled via --marionette
+1522570490736	Marionette	INFO	Listening on port 53912
+1522570491090	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/static/protocol/https/plugins/every_cookie_4644b13.js, line 4: ReferenceError: c is not defined
