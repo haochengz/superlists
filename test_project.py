@@ -12,11 +12,11 @@ class Functional_Test(unittest.TestCase):
 
     def test_open_index_page(self):
         self.browser.get("http://localhost:8000")
-        self.assertIn("To-do", self.browser.title)
+        self.assertIn("to-do", self.browser.title)
 
     def tearDown(self):
         self.browser.close()
 
 
 if __name__ == "__main__":
-    unittest.main(warnings='ignore')
+    unittest.main()
