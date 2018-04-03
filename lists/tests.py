@@ -12,9 +12,10 @@ class Test(TestCase):
         self.assertEqual(found.func, home_page)
         
     def test_home_page_response(self):
-        req = HttpRequest()
-        resp = home_page(req)
-        self.assertTrue(resp.content.strip().startswith(b"<html>"))
-        self.assertIn(b"<title>One to-do list</title>", resp.content)
-        self.assertTrue(resp.content.strip().endswith(b"</html>"))
+        request = HttpRequest()
+        response = home_page(request)
+        html = response.content.decode("utf-8").strip()
+        self.assertTrue(html.startswith("<html>"))
+        self.assertIn("<title>One to-do list</title>", html)
+        self.assertTrue(html.endswith("</html>"))
         
