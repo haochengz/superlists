@@ -25,10 +25,11 @@ class Functional_Test(unittest.TestCase):
         inputbox.send_keys('Buy peacook feathers')
         inputbox.send_keys(Keys.ENTER)
 
-        table = self.browser.find_element_by_tag_name('id_list_table')
+        table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(
                 any(row.text == '1: Buy peacook feathers' for row in rows),
+                "New to-do item didn't appear in to-do list table.",
                 )
 
     def tearDown(self):
