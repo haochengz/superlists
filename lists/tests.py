@@ -20,14 +20,29 @@ class TestViews(TestCase):
         self.assertIn("<title>One to-do list</title>", html)
         self.assertTrue(html.endswith("</html>"))
 
-    def test_home_page_post_new_item(self):
+    def test_home_page_can_save_a_POST_request_to_db(self):
         request = HttpRequest()
         request.method = "POST"
         request.POST['item_text'] = "Adding a new to-do item"
 
         response = home_page(request)
-        html = response.content.decode()
-        self.assertIn("Adding a new to-do item", html)
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, request.POST['item_text'])
+
+    def test_home_page_submit_a_POST_then_redirects_to_index(self):
+        request = HttpRequest()
+        request.method = "POST"
+        request.POST['item_text'] = "Adding a new to-do item"
+
+        response = home_page(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def test_home_page_only_saves_item_when_necessary(self):
+        request = HttpRequest()
+        home_page(request)
+        self.assertEqual(Item.objects.count(), 0)
 
 
 class TestModels(TestCase):
