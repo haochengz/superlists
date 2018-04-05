@@ -12,6 +12,16 @@ class TestViews(TestCase):
         found = resolve('/')
         self.assertEqual(found.func, home_page)
         
+    def test_home_page_display_multiple_items(self):
+        Item.objects.create(text="Item 1")
+        Item.objects.create(text="Item 2")
+
+        request = HttpRequest()
+        response = home_page(request)
+
+        self.assertIn("Item 1", response.content.decode())
+        self.assertIn("Item 2", response.content.decode())
+        
     def test_home_page_response(self):
         request = HttpRequest()
         response = home_page(request)
