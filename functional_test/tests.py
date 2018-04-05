@@ -1,10 +1,10 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import unittest
+from django.test import LiveServerTestCase
 import time
 
-class Functional_Test(unittest.TestCase):
+class New_Visitor_Test(LiveServerTestCase):
 
     def setUp(self):
         firefox_options = webdriver.FirefoxOptions()
@@ -25,7 +25,7 @@ class Functional_Test(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
 
     def test_open_index_page(self):
-        self.browser.get("http://localhost:8000")
+        self.browser.get(self.live_server_url)
         self.assertIn("to-do", self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
         self.assertIn('to-do', header_text)
