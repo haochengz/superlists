@@ -4,7 +4,22 @@ from django.http import HttpRequest
 from lists.views import home_page
 from lists.models import Item
 
-# Create your tests here.
+
+class ListViewTest(TestCase):
+
+    def test_home_page_display_multiple_items(self):
+        Item.objects.create(text="Item 1")
+        Item.objects.create(text="Item 2")
+
+        response = self.client.get('/lists/only_list/')
+
+        self.assertContains(response=response, text='Item 1')
+        self.assertContains(response=response, text='Item 2')
+
+    def test_uses_list_template(self):
+        resp = self.client.get('/lists/only_list/')
+
+        self.assertTemplateUsed(resp, 'list.html')
 
 class TestViews(TestCase):
 
@@ -12,15 +27,6 @@ class TestViews(TestCase):
         found = resolve('/')
         self.assertEqual(found.func, home_page)
         
-    def test_home_page_display_multiple_items(self):
-        Item.objects.create(text="Item 1")
-        Item.objects.create(text="Item 2")
-
-        request = HttpRequest()
-        response = home_page(request)
-
-        self.assertIn("Item 1", response.content.decode())
-        self.assertIn("Item 2", response.content.decode())
         
     def test_home_page_response(self):
         request = HttpRequest()
@@ -47,7 +53,7 @@ class TestViews(TestCase):
 
         response = home_page(request)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
+        self.assertEqual(response['location'], '/lists/only_list/')
 
     def test_home_page_only_saves_item_when_necessary(self):
         request = HttpRequest()

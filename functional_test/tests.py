@@ -25,7 +25,7 @@ class New_Visitor_Test(LiveServerTestCase):
         time.sleep(2)
         table = self.browser.find_element_by_id('id_list_table')
         self.assertIn(row_text, 
-                [row.text for row in table.find_elements_by_tag_name('tr')])
+                "".join([row.text for row in table.find_elements_by_tag_name('tr')]))
 
     def submit_a_item_at_index_page(self, item_text):
         inputbox = self.browser.find_element_by_id('id_new_item')
