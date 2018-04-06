@@ -21,6 +21,22 @@ class ListViewTest(TestCase):
 
         self.assertTemplateUsed(resp, 'list.html')
 
+    def test_home_page_can_save_a_POST_request_to_db(self):
+        self.client.post(
+                '/lists/new',
+                data={'item_text': 'A new list item'}
+            )
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
+    def test_home_page_submit_a_POST_then_redirect(self):
+        response = self.client.post(
+                '/lists/new',
+                data={'item_text': 'A new list item'}
+            )
+        self.assertRedirects(response, '/lists/only_list/')
+
 class TestViews(TestCase):
 
     def test_home_page_url_resolve(self):
@@ -35,30 +51,6 @@ class TestViews(TestCase):
         self.assertTrue(html.startswith("<html>"))
         self.assertIn("<title>One to-do list</title>", html)
         self.assertTrue(html.endswith("</html>"))
-
-    def test_home_page_can_save_a_POST_request_to_db(self):
-        request = HttpRequest()
-        request.method = "POST"
-        request.POST['item_text'] = "Adding a new to-do item"
-
-        response = home_page(request)
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.text, request.POST['item_text'])
-
-    def test_home_page_submit_a_POST_then_redirects_to_index(self):
-        request = HttpRequest()
-        request.method = "POST"
-        request.POST['item_text'] = "Adding a new to-do item"
-
-        response = home_page(request)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/only_list/')
-
-    def test_home_page_only_saves_item_when_necessary(self):
-        request = HttpRequest()
-        home_page(request)
-        self.assertEqual(Item.objects.count(), 0)
 
 
 class TestModels(TestCase):
