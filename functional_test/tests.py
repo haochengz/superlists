@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from django.test import LiveServerTestCase
 import time
 
-class New_Visitor_Test(LiveServerTestCase):
+class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = self.open_a_browser()

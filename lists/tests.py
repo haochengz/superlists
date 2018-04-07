@@ -12,16 +12,33 @@ class ListViewTest(TestCase):
         list_ = List.objects.create()
         Item.objects.create(text="Item 1", saving_list=list_)
         Item.objects.create(text="Item 2", saving_list=list_)
+        new_list = List.objects.first()
 
-        response = self.client.get('/lists/only_list/')
+        response = self.client.get('/lists/%d/' % new_list.id)
 
         self.assertContains(response=response, text='Item 1')
         self.assertContains(response=response, text='Item 2')
 
     def test_uses_list_template(self):
-        resp = self.client.get('/lists/only_list/')
+        list_ = List.objects.create()
+        resp = self.client.get('/lists/%d/' % list_.id)
 
         self.assertTemplateUsed(resp, 'list.html')
+
+    def test_displays_only_items_for_that_list(self):
+        correct_list = List.objects.create()
+        Item.objects.create(text='Item 1', saving_list=correct_list)
+        Item.objects.create(text='Item 2', saving_list=correct_list)
+        other_list = List.objects.create()
+        Item.objects.create(text='Item 3', saving_list=other_list)
+        Item.objects.create(text='Item 4', saving_list=other_list)
+
+        resp = self.client.get('/lists/%d/' % correct_list.id)
+
+        self.assertContains(resp, 'Item 1')
+        self.assertContains(resp, 'Item 2')
+        self.assertNotContains(resp, 'Item 3')
+        self.assertNotContains(resp, 'Item 4')
 
     def test_home_page_can_save_a_POST_request_to_db(self):
         self.client.post(
@@ -37,7 +54,8 @@ class ListViewTest(TestCase):
                 '/lists/new',
                 data={'item_text': 'A new list item'}
             )
-        self.assertRedirects(response, '/lists/only_list/')
+        new_list = List.objects.first()
+        self.assertRedirects(response, '/lists/%d/' % new_list.id)
 
 class TestViews(TestCase):
 
