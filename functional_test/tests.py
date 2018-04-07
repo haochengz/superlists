@@ -51,8 +51,8 @@ class NewVisitorTest(LiveServerTestCase):
 
         self.submit_a_item_at_index_page("Use peacock feathers to make a fly")
         # 再次提交一个item将和之前的items一同回显在首页上
-        self.check_for_row_of_table_contains_item("1: Buy peacock feathers")
-        self.check_for_row_of_table_contains_item("2: Use peacock feathers to make a fly")
+        # self.check_for_row_of_table_contains_item("1: Buy peacock feathers")
+        self.check_for_row_of_table_contains_item("Use peacock feathers to make a fly")
 
         first_list_url = self.browser.current_url
         self.reset_browser()
