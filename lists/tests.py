@@ -7,8 +7,56 @@ from lists.views import home_page
 from lists.models import Item, List
 
 
-class NewItemTest(TestCase):
+class ListAndItemModelTest(TestCase):
+    """
+    Model: Item and List
+    """
+    def test_saving_and_retrieving_items(self):
+        list_ = List()
+        list_.save()
 
+        first_item = Item()
+        first_item.text = 'The first (ever) list item'
+        first_item.saving_list = list_
+        first_item.save()
+
+        second_item = Item()
+        second_item.text = 'The second list item'
+        second_item.saving_list = list_
+        second_item.save()
+
+        saved_list = List.objects.first()
+        self.assertEqual(saved_list, list_)
+
+        saved_items = Item.objects.all()
+        self.assertEqual(saved_items.count(), 2)
+
+        first = saved_items[0]
+        second = saved_items[1]
+        self.assertEqual(first.text, first_item.text)
+        self.assertEqual(first.saving_list, list_)
+        self.assertEqual(second.text, second_item.text)
+        self.assertEqual(second.saving_list, list_)
+
+
+class TestHomepageViews(TestCase):
+    """
+    Views: home_page
+    """
+    def test_home_page_url_resolve(self):
+        found = resolve('/')
+        self.assertEqual(found.func, home_page)
+        
+    def test_home_page_response(self):
+        request = HttpRequest()
+        response = home_page(request)
+        html = response.content.decode("utf-8").strip()
+        self.assertTrue(html.startswith("<!DOCTYPE html>"))
+        self.assertIn("<title>One to-do list</title>", html)
+        self.assertTrue(html.endswith("</html>"))
+
+
+class NewItemTest(TestCase):
     def test_can_save_a_POST_request_to_an_existing_list(self):
         other_list = List.objects.create()
         correct_list = List.objects.create()
@@ -46,7 +94,6 @@ class NewItemTest(TestCase):
 
 
 class ListViewTest(TestCase):
-
     def test_home_page_display_multiple_items(self):
         list_ = List.objects.create()
         Item.objects.create(text="Item 1", saving_list=list_)
@@ -96,47 +143,4 @@ class ListViewTest(TestCase):
         new_list = List.objects.first()
         self.assertRedirects(response, '/lists/%d/' % new_list.id)
 
-class TestViews(TestCase):
 
-    def test_home_page_url_resolve(self):
-        found = resolve('/')
-        self.assertEqual(found.func, home_page)
-        
-        
-    def test_home_page_response(self):
-        request = HttpRequest()
-        response = home_page(request)
-        html = response.content.decode("utf-8").strip()
-        self.assertTrue(html.startswith("<html>"))
-        self.assertIn("<title>One to-do list</title>", html)
-        self.assertTrue(html.endswith("</html>"))
-
-
-class ListAndItemModelTest(TestCase):
-
-    def test_saving_and_retrieving_items(self):
-        list_ = List()
-        list_.save()
-
-        first_item = Item()
-        first_item.text = 'The first (ever) list item'
-        first_item.saving_list = list_
-        first_item.save()
-
-        second_item = Item()
-        second_item.text = 'The second list item'
-        second_item.saving_list = list_
-        second_item.save()
-
-        saved_list = List.objects.first()
-        self.assertEqual(saved_list, list_)
-
-        saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
-
-        first = saved_items[0]
-        second = saved_items[1]
-        self.assertEqual(first.text, first_item.text)
-        self.assertEqual(first.saving_list, list_)
-        self.assertEqual(second.text, second_item.text)
-        self.assertEqual(second.saving_list, list_)
