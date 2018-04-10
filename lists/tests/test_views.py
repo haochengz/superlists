@@ -122,3 +122,12 @@ class ListViewTest(TestCase):
         resp = self.client.post('/lists/new', data={'item_text': ""})
         self.assertEqual(List.objects.count(), 0)
         self.assertEqual(Item.objects.count(), 0)
+
+    def test_validation_errors_end_up_on_lists_page(self):
+        list_ = List.objects.create()
+        resp = self.client.post('/lists/%d/' % list_.id, data={'item_text': ""})
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'list.html')
+        expected_error = escape("You can't have an empty list item")
+        self.assertContains(resp, expected_error)
+
