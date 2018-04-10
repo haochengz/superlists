@@ -1,8 +1,11 @@
 
+from unittest import skip
+
 from .base import FunctionalTest
 
 class ItemValidationTest(FunctionalTest):
 
+    @skip
     def test_cannot_add_empty_item(self):
         self.browser.get(self.live_server_url)
         self.submit_a_item_at_index_page("")

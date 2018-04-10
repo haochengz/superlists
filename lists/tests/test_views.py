@@ -25,13 +25,14 @@ class TestHomepageViews(TestCase):
         self.assertTrue(html.endswith("</html>"))
 
 
-class NewItemTest(TestCase):
+class ListViewTest(TestCase):
+
     def test_can_save_a_POST_request_to_an_existing_list(self):
         other_list = List.objects.create()
         correct_list = List.objects.create()
 
         self.client.post(
-                '/lists/%d/add' % correct_list.id,
+                '/lists/%d/' % correct_list.id,
                 data = {
                     'item_text': 'Add a new item to existing list'
                 }
@@ -48,12 +49,12 @@ class NewItemTest(TestCase):
         resp = self.client.get('/lists/%d/' % correct_list.id)
         self.assertEqual(resp.context['list'], correct_list)
         
-    def test_redirects_to_list_view(self):
+    def test_POST_redirects_to_list_view(self):
         other_list = List.objects.create()
         correct_list = List.objects.create()
 
         resp = self.client.post(
-                '/lists/%d/add' % correct_list.id,
+                '/lists/%d/' % correct_list.id,
                 data = {
                     'item_text': 'Add a new item to existing list'
                 }
@@ -61,8 +62,6 @@ class NewItemTest(TestCase):
 
         self.assertRedirects(resp, '/lists/%d/' % correct_list.id)
 
-
-class ListViewTest(TestCase):
     def test_home_page_display_multiple_items(self):
         list_ = List.objects.create()
         Item.objects.create(text="Item 1", saving_list=list_)
