@@ -1,37 +1,7 @@
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-# from django.test import LiveServerTestCase
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-import time
+from .base import FunctionalTest
 
-class NewVisitorTest(StaticLiveServerTestCase):
-
-    def setUp(self):
-        self.browser = self.open_a_browser()
-
-    def reset_browser(self):
-        self.browser.quit()
-        self.browser = self.open_a_browser()
-
-    def open_a_browser(self):
-        firefox_options = webdriver.FirefoxOptions()
-        firefox_options.set_headless()
-        browser = webdriver.Firefox(options=firefox_options)
-        browser.implicitly_wait(3)
-        return browser
-
-    def check_for_row_of_table_contains_item(self, row_text):
-        # html文件再如不完整将引发selenium查找节点失败的错误
-        time.sleep(3)
-        table = self.browser.find_element_by_id('id_list_table')
-        self.assertIn(row_text, 
-                "".join([row.text for row in table.find_elements_by_tag_name('tr')]))
-
-    def submit_a_item_at_index_page(self, item_text):
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        inputbox.send_keys(item_text)
-        inputbox.send_keys(Keys.ENTER)
+class NewVisitorTest(FunctionalTest):
 
     def test_open_index_page(self):
         self.browser.get(self.live_server_url)
@@ -77,18 +47,3 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # 前一个会话的输入依然不会显示出来
         self.assertNotIn("Buy peacock feathers", html_body)
         self.assertNotIn("make a fly", html_body)
-
-    def test_layout_and_styling(self):
-        self.browser.get(self.live_server_url)
-        self.browser.set_window_size(1024, 768)
-
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        self.assertAlmostEqual(
-                inputbox.location['x'] + inputbox.size['width'] / 2,
-                270,
-                delta=5
-            )
-
-    def tearDown(self):
-        self.browser.close()
-
