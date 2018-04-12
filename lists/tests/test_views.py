@@ -7,7 +7,7 @@ from django.utils.html import escape
 
 from lists.views import home_page
 from lists.models import Item, List
-from lists.forms import ItemForm
+from lists.forms import ItemForm, EMPTY_ITEM_ERROR
 
 
 class TestHomepageViews(TestCase):
@@ -69,25 +69,27 @@ class ListViewTest(TestCase):
                     'text': 'Add a new item to existing list'
                 }
             )
-
         self.assertRedirects(resp, '/lists/%d/' % correct_list.id)
+
+    def test_uses_list_template(self):
+        list_ = List.objects.create()
+        resp = self.client.get('/lists/%d/' % list_.id)
+        self.assertTemplateUsed(resp, 'list.html')
+
+    def test_displays_item_form(self):
+        list_ = List.objects.create()
+        resp = self.client.get('/lists/%d/' % list_.id)
+        self.assertIsInstance(resp.context['form'], ItemForm)
+        self.assertContains(resp, 'name="text"')
 
     def test_home_page_display_multiple_items(self):
         list_ = List.objects.create()
         Item.objects.create(text="Item 1", saving_list=list_)
         Item.objects.create(text="Item 2", saving_list=list_)
         new_list = List.objects.first()
-
         response = self.client.get('/lists/%d/' % new_list.id)
-
         self.assertContains(response=response, text='Item 1')
         self.assertContains(response=response, text='Item 2')
-
-    def test_uses_list_template(self):
-        list_ = List.objects.create()
-        resp = self.client.get('/lists/%d/' % list_.id)
-
-        self.assertTemplateUsed(resp, 'list.html')
 
     def test_displays_only_items_for_that_list(self):
         correct_list = List.objects.create()
@@ -121,12 +123,18 @@ class ListViewTest(TestCase):
         new_list = List.objects.first()
         self.assertRedirects(response, '/lists/%d/' % new_list.id)
 
-    def test_validation_errors_are_send_back_to_homepage(self):
+    def test_for_invalid_input_passes_form_to_template(self):
+        resp = self.client.post('/lists/new', data={'text': ""})
+        self.assertIsInstance(resp.context['form'], ItemForm)
+
+    def test_validation_errors_are_shown_on_homepage(self):
+        resp = self.client.post('/lists/new', data={'text': ""})
+        self.assertContains(resp, escape(EMPTY_ITEM_ERROR))
+
+    def test_for_invalid_input_renders_homepage_template(self):
         resp = self.client.post('/lists/new', data={'text': ""})
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, 'lists_index.html')
-        expected_error = escape("You can't have an empty list item")
-        self.assertContains(resp, expected_error)
 
     def test_empty_items_arent_saved(self):
         resp = self.client.post('/lists/new', data={'text': ""})
@@ -135,9 +143,33 @@ class ListViewTest(TestCase):
 
     def test_validation_errors_end_up_on_lists_page(self):
         list_ = List.objects.create()
-        resp = self.client.post('/lists/%d/' % list_.id, data={'text': ""})
+        resp = self.post_invalid_input()
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, 'list.html')
         expected_error = escape("You can't have an empty list item")
         self.assertContains(resp, expected_error)
+    
+    def test_for_invalid_input_nothing_saved_to_db(self):
+        self.post_invalid_input()
+        self.assertEqual(Item.objects.count(), 0)
 
+    def test_for_invalid_input_renders_list_templates(self):
+        resp = self.post_invalid_input()
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'list.html')
+
+    def test_for_invalid_input_passes_form_to_template(self):
+        resp = self.post_invalid_input()
+        self.assertIsInstance(resp.context['form'], ItemForm)
+
+    def test_for_invalid_input_shows_error_on_page(self):
+        resp = self.post_invalid_input()
+        expected_error = escape("You can't have an empty list item")
+        self.assertContains(resp, expected_error)
+
+    def post_invalid_input(self):
+        list_ = List.objects.create()
+        return self.client.post(
+                '/lists/%d/' % list_.id,
+                data={'text': ""},
+            )
