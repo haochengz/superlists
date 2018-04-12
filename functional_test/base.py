@@ -26,11 +26,13 @@ class FunctionalTest(StaticLiveServerTestCase):
         table = self.browser.find_element_by_id('id_list_table')
         self.assertIn(row_text, 
                 "".join([row.text for row in table.find_elements_by_tag_name('tr')]))
-
     def submit_a_item_at_index_page(self, item_text):
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.get_input_box()
         inputbox.send_keys(item_text)
         inputbox.send_keys(Keys.ENTER)
+
+    def get_input_box(self):
+        return self.browser.find_element_by_id('id_text')
 
     def tearDown(self):
         self.browser.close()

@@ -5,10 +5,11 @@ from django.core.exceptions import ValidationError
 
 
 from lists.models import Item, List
+from lists.forms import ItemForm
 
 
 def home_page(request):
-    return render(request, 'lists_index.html')
+    return render(request, 'lists_index.html', {'form': ItemForm()})
 
 def view_list(request, list_id):
     list_ = List.objects.get(id=list_id)

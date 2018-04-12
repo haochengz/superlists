@@ -3,26 +3,36 @@ from django.test import TestCase
 from django.urls import resolve
 from django.http import HttpRequest
 from django.utils.html import escape
+# from django.template.loader import render_to_string
 
 from lists.views import home_page
 from lists.models import Item, List
+from lists.forms import ItemForm
 
 
 class TestHomepageViews(TestCase):
-    """
-    Views: home_page
-    """
-    def test_home_page_url_resolve(self):
+
+    def test_homepage_url_resolve(self):
         found = resolve('/')
         self.assertEqual(found.func, home_page)
         
-    def test_home_page_response(self):
-        request = HttpRequest()
-        response = home_page(request)
-        html = response.content.decode("utf-8").strip()
+    def test_homepage_returns_correct_html(self):
+        req = HttpRequest()
+        resp = home_page(req)
+        html = resp.content.decode("utf-8").strip()
+        # expected_html = render_to_string('lists_index.html',{'form':ItemForm()})
+        # self.assertMultiLineEqual(html, expected_html)
         self.assertTrue(html.startswith("<!DOCTYPE html>"))
         self.assertIn("<title>One to-do list</title>", html)
         self.assertTrue(html.endswith("</html>"))
+
+    def test_homepage_renders_home_template(self):
+        resp = self.client.get('/')
+        self.assertTemplateUsed(resp, 'lists_index.html')
+
+    def test_homepage_uses_item_form(self):
+        resp = self.client.get('/')
+        self.assertIsInstance(resp.context['form'], ItemForm)
 
 
 class ListViewTest(TestCase):

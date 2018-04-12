@@ -10,7 +10,7 @@ class NewVisitorTest(FunctionalTest):
         # 打开首页后标题栏中应当有to-do字样
         self.assertIn('to-do', header_text)
 
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.get_input_box()
         # 首页有输入栏且该输入栏是输入to-do item的输入栏
         self.assertEqual(
                 inputbox.get_attribute('placeholder'),
@@ -33,7 +33,7 @@ class NewVisitorTest(FunctionalTest):
         self.assertNotIn("Buy peacock feathers", html_body)
         self.assertNotIn("make a fly", html_body)
 
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.get_input_box()
         self.submit_a_item_at_index_page("Buy some milk")
         # 插入新数据后应当正常的回显
         self.check_for_row_of_table_contains_item("Buy some milk")
