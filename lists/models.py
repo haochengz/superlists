@@ -17,3 +17,6 @@ class Item(models.Model):
             on_delete=models.CASCADE,
         )
 
+    class Meta:
+        ordering = ('id', )
+        unique_together = ('saving_list', 'text')
