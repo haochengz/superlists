@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import resolve
 from django.http import HttpRequest
 from django.utils.html import escape
+from unittest import skip
 # from django.template.loader import render_to_string
 
 from lists.views import home_page
@@ -167,9 +168,27 @@ class ListViewTest(TestCase):
         expected_error = escape("You can't have an empty list item")
         self.assertContains(resp, expected_error)
 
+    @skip
+    def test_duplicate_item_shows_error_on_page(self):
+        ls = List.objects.create()
+        item = Item.objects.create(saving_list=ls, text='texts')
+        resp = self.client.post(
+                '/lists/%d/' % ls.id,
+                data={'text': 'texts'}
+            )
+
+        expected_error = escape("You've already got this in your list")
+        self.assertContains(resp, expected_error)
+        self.assertTemplateUsed(resp, 'list.html')
+        self.assertEqual(Item.objects.all().count(), 1)
+
+
+    
     def post_invalid_input(self):
         list_ = List.objects.create()
         return self.client.post(
                 '/lists/%d/' % list_.id,
                 data={'text': ""},
             )
+
+
