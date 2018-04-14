@@ -8,7 +8,10 @@ from unittest import skip
 
 from lists.views import home_page
 from lists.models import Item, List
-from lists.forms import ItemForm, EMPTY_ITEM_ERROR
+from lists.forms import (
+        ExistingListItemForm, ItemForm, 
+        EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR
+    )
 
 
 class TestHomepageViews(TestCase):
@@ -80,7 +83,7 @@ class ListViewTest(TestCase):
     def test_displays_item_form(self):
         list_ = List.objects.create()
         resp = self.client.get('/lists/%d/' % list_.id)
-        self.assertIsInstance(resp.context['form'], ItemForm)
+        self.assertIsInstance(resp.context['form'], ExistingListItemForm)
         self.assertContains(resp, 'name="text"')
 
     def test_home_page_display_multiple_items(self):
@@ -126,7 +129,7 @@ class ListViewTest(TestCase):
 
     def test_for_invalid_input_passes_form_to_template(self):
         resp = self.client.post('/lists/new', data={'text': ""})
-        self.assertIsInstance(resp.context['form'], ItemForm)
+        self.assertIsInstance(resp.context['form'], ExistingListItemForm)
 
     def test_validation_errors_are_shown_on_homepage(self):
         resp = self.client.post('/lists/new', data={'text': ""})
@@ -168,7 +171,6 @@ class ListViewTest(TestCase):
         expected_error = escape("You can't have an empty list item")
         self.assertContains(resp, expected_error)
 
-    @skip
     def test_duplicate_item_shows_error_on_page(self):
         ls = List.objects.create()
         item = Item.objects.create(saving_list=ls, text='texts')
@@ -177,7 +179,7 @@ class ListViewTest(TestCase):
                 data={'text': 'texts'}
             )
 
-        expected_error = escape("You've already got this in your list")
+        expected_error = escape(DUPLICATE_ITEM_ERROR)
         self.assertContains(resp, expected_error)
         self.assertTemplateUsed(resp, 'list.html')
         self.assertEqual(Item.objects.all().count(), 1)
